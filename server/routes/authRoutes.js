@@ -13,11 +13,11 @@ router.post('/register', async (req, res) => {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: "User already exists" });
 
-    // পাসওয়ার্ড হ্যাশ করা (সিকিউরিটি)
+    // পাসওয়ার্ড হ্যাশ করা (সিকিউরিটি)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // নতুন ইউজার ডাটাবেসে সেভ করা
+    // নতুন ইউজার তৈরি ও সেভ করা
     user = new User({ name, email, password: hashedPassword });
     await user.save();
 
@@ -36,11 +36,11 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid Credentials" });
 
-    // পাসওয়ার্ড চেক করা
+    // পাসওয়ার্ড চেক করা
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid Credentials" });
 
-    // JWT টোকেন তৈরি করা (এটি ফ্রন্তএন্ডে যাবে)
+    // JWT টোকেন তৈরি করা
     const token = jwt.sign(
       { id: user._id, role: user.role }, 
       process.env.JWT_SECRET || 'secretkey123', 
