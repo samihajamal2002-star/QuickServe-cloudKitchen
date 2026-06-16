@@ -2,64 +2,20 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import logoImg from '../assets/logo.png'; 
 import bannerImg from '../assets/banner.png';
+import MenuPage from './MenuPage';
+
 const Homepage = () => {
   return (
-    <div className="w-full bg-[#fcfcfc] min-h-screen text-gray-800 font-sans">
+   
+   <div className="w-full bg-[#fcfcfc] min-h-screen text-gray-800 font-sans">
       
-      {/* NAVBAR */}
-      <nav className="flex items-center justify-between h-16 px-8 bg-[#1A2B4A] sticky top-0 z-50 shadow-md">
-        <div className="flex items-center gap-3">
-          {/* আপনার আপলোড করা কাস্টম লোগো */}
-          <div className="w-12 h-12 flex items-center justify-center overflow-hidden rounded-lg bg-white p-0.5">
-            <img 
-              src={logoImg} 
-              alt="QuickServe Logo" 
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div>
-            <div className="text-base font-black text-white tracking-tight leading-none">
-              Quick<span className="text-[#F59E0B]">Serve</span>
-            </div>
-            <div className="text-[9px] text-[#F59E0B] font-bold tracking-widest uppercase mt-1">
-              Cloud Kitchen
-            </div>
-          </div>
-        </div>
-        
-        <div className="hidden md:flex items-center gap-6">
-          <a href="#" className="text-xs font-bold text-[#F59E0B]">Home</a>
-          <a href="#" className="text-xs font-bold text-white/80 hover:text-[#F59E0B] transition-colors">Menu</a>
-          <a href="#" className="text-xs font-bold text-white/80 hover:text-[#F59E0B] transition-colors">Track Order</a>
-          <a href="#" className="text-xs font-bold text-white/80 hover:text-[#F59E0B] transition-colors">About Us</a>
-          <a href="#" className="text-xs font-bold text-white/80 hover:text-[#F59E0B] transition-colors">Contact Us</a>
-        </div>
-
-<div className="flex items-center gap-4">
-  {/* Login Link */}
-  <Link 
-    to="/login" 
-    className="text-xs font-bold text-white/90 hover:text-[#F59E0B] transition-colors"
-  >
-    Login
-  </Link>
-
-  {/* Register Link (Button style-এ) */}
-  <Link 
-    to="/register" 
-    className="bg-[#F59E0B] text-[#1A2B4A] text-xs font-bold px-4 py-2 rounded-xl hover:bg-[#e08e05] transition-all shadow-md shadow-[#F59E0B]/10 flex items-center gap-1"
-  >
-    Register <i className="ti ti-chevron-right text-[10px]"></i>
-  </Link>
-</div>  
-      </nav>
 
 {/* HERO SECTION WITH BACKGROUND IMAGE */}
 <div 
   className="relative w-full min-h-[85vh] px-6 text-center overflow-hidden flex flex-col items-center justify-center bg-cover bg-center"
   style={{
      backgroundImage: `linear-gradient(
-    rgba(217, 119, 6, 0.2),
+    rgba(217, 119, 6, 0.4),
     rgba(26, 43, 74, 0.4)
   ), url(${bannerImg})`
 }}
@@ -104,9 +60,9 @@ const Homepage = () => {
           </div>
 
           {/* Action Button */}
-          <button className="w-full md:w-auto bg-[#1A2B4A] text-white font-bold text-xs px-6 py-3 rounded-xl md:rounded-full hover:bg-[#132038] transition-all whitespace-nowrap shadow-md flex items-center justify-center gap-1">
+          <Link to="/menu" className="w-full md:w-auto bg-[#1A2B4A] text-white font-bold text-xs px-6 py-3 rounded-xl md:rounded-full hover:bg-[#132038] transition-all whitespace-nowrap shadow-md flex items-center justify-center gap-1">
             Order Now <i className="ti ti-chevron-right text-[10px]"></i>
-          </button>
+         </Link>
         </div>
       </div>
 

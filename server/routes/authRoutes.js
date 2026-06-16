@@ -4,52 +4,130 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// ১. রেজিস্ট্রেশন রাউট (POST /api/auth/register)
+// ======================
+// REGISTER
+// POST /api/auth/register
+// ======================
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
-    // ইউজার অলরেডি আছে কিনা চেক করা
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: "User already exists" });
+    // Check existing user
+    const existingUser = await User.findOne({ email });
 
-    // পাসওয়ার্ড হ্যাশ করা (সিকিউরিটি)
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists"
+      });
+    }
+
+    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // নতুন ইউজার তৈরি ও সেভ করা
-    user = new User({ name, email, password: hashedPassword });
-    await user.save();
+    // Create user
+    const newUser = new User({
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      role
+    });
 
-    res.status(201).json({ message: "User registered successfully!" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    await newUser.save();
+
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        id: newUser._id,
+        role: newUser.role
+      },
+      process.env.JWT_SECRET || "secretkey123",
+      {
+        expiresIn: "1h"
+      }
+    );
+
+    res.status(201).json({
+      message: "Registration Successful",
+      token,
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        role: newUser.role
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message
+    });
   }
 });
 
-// ২. লগইন রাউট (POST /api/auth/login)
+// ======================
+// LOGIN
+// POST /api/auth/login
+// ======================
 router.post('/login', async (req, res) => {
   try {
+
     const { email, password } = req.body;
 
-    // ইউজার খোঁজা
+    // Find user
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid Credentials" });
 
-    // পাসওয়ার্ড চেক করা
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid Credentials" });
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid Credentials"
+      });
+    }
 
-    // JWT টোকেন তৈরি করা
-    const token = jwt.sign(
-      { id: user._id, role: user.role }, 
-      process.env.JWT_SECRET || 'secretkey123', 
-      { expiresIn: '1h' }
+    // Compare password
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
     );
 
-    res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid Credentials"
+      });
+    }
+
+    // JWT Token
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role
+      },
+      process.env.JWT_SECRET || "secretkey123",
+      {
+        expiresIn: "1h"
+      }
+    );
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message
+    });
   }
 });
 

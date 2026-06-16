@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); // এই লাইনটি যোগ করুন
 
-const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['customer', 'admin', 'delivery'], default: 'customer' }
+const userSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String },
+    phone: { type: String, required: true },
+    role: { type: String, enum: ['customer', 'admin', 'chef', 'rider'], default: 'Customer' }
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', userSchema);
