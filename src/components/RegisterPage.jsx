@@ -71,25 +71,26 @@ function StepBar({ step }) {
   );
 }
 
-function FormGroup({ label, icon, children }) {
+function FormGroup({ label,children }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: "var(--color-text-secondary, #6b7280)", marginBottom: 4, letterSpacing: "0.3px" }}>{label}</label>
-      <div style={{ position: "relative" }}>
-        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14, pointerEvents: "none" }}>{icon}</span>
+      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 6,}}>{label}</label>
         {children}
       </div>
-    </div>
   );
 }
 
 const inputStyle = {
-  width: "100%", padding: "9px 10px 9px 32px",
-  border: "1px solid #d1d5db", borderRadius: 7,
-  fontSize: 12, outline: "none",
-  fontFamily: "inherit", boxSizing: "border-box",
-  background: "var(--color-background-primary, #fff)",
-  color: "var(--color-text-primary, #1f2937)",
+  width: "100%",
+  padding: "10px 12px",
+  border: "1px solid #d1d5db",
+  borderRadius: 7,
+  fontSize: 13,
+  outline: "none",
+  fontFamily: "inherit",
+  boxSizing: "border-box",
+  background: "#fff",
+  color: "#111827",
 };
 
 // ── Main RegisterPage ─────────────────────────────────────────────────────────
@@ -133,7 +134,8 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     try {
-      const { data } = await axios.post("/api/auth/register", {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/auth/register", {
         name:     `${form.firstName.trim()} ${form.lastName.trim()}`,
         email:    form.email.trim(),
         phone:    form.phone.trim(),
@@ -267,37 +269,37 @@ export default function RegisterPage() {
 
           {/* Name row */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <FormGroup label="FIRST NAME" icon="👤">
-              <input style={inputStyle} type="text" placeholder="Sabiha" value={form.firstName} onChange={set("firstName")} />
+            <FormGroup label="FIRST NAME">
+              <input style={inputStyle} type="text" placeholder="First Name" value={form.firstName} onChange={set("firstName")} />
             </FormGroup>
-            <FormGroup label="LAST NAME" icon="👤">
-              <input style={inputStyle} type="text" placeholder="Jannat" value={form.lastName} onChange={set("lastName")} />
+            <FormGroup label="LAST NAME">
+              <input style={inputStyle} type="text" placeholder="Last Name" value={form.lastName} onChange={set("lastName")} />
             </FormGroup>
           </div>
 
           {/* Email */}
-          <FormGroup label="EMAIL ADDRESS" icon="✉️">
-            <input style={inputStyle} type="email" placeholder="you@example.com" value={form.email} onChange={set("email")} />
+          <FormGroup label="EMAIL ADDRESS">
+            <input style={inputStyle} type="email" placeholder="you@gmail.com" value={form.email} onChange={set("email")} />
           </FormGroup>
 
           {/* Phone */}
-          <FormGroup label="PHONE NUMBER" icon="📞">
-            <input style={inputStyle} type="tel" placeholder="+880 17XX-XXXXXX" value={form.phone} onChange={set("phone")} />
+          <FormGroup label="PHONE NUMBER">
+            <input style={inputStyle} type="tel" placeholder="+880 1XXX-XXXXXX" value={form.phone} onChange={set("phone")} />
           </FormGroup>
 
           {/* Password */}
-          <FormGroup label="PASSWORD" icon="🔒">
+          <FormGroup label="PASSWORD">
             <div style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14 }}>🔒</span>
+              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14 }}></span>
               <input
                 style={{ ...inputStyle, paddingRight: 36 }}
                 type={showPass ? "text" : "password"}
-                placeholder="Min. 8 characters"
+                placeholder="Create new password"
                 value={form.password}
                 onChange={set("password")}
               />
               <span onClick={() => setShowPass(p => !p)} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", cursor: "pointer", fontSize: 14 }}>
-                {showPass ? "🙈" : "👁️"}
+                {showPass ? "" : ""}
               </span>
             </div>
             {/* Strength bar */}
@@ -314,9 +316,8 @@ export default function RegisterPage() {
           </FormGroup>
 
           {/* Confirm password */}
-          <FormGroup label="CONFIRM PASSWORD" icon="🔒">
+          <FormGroup label="CONFIRM PASSWORD">
             <div style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14 }}>🔒</span>
               <input
                 style={{
                   ...inputStyle, paddingRight: 36,
@@ -361,7 +362,7 @@ export default function RegisterPage() {
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             cursor: loading ? "not-allowed" : "pointer",
           })}>
-            {loading ? "Creating account..." : "Create Account 🚀"}
+            {loading ? "Creating account..." : "Create Account "}
           </button>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "12px 0" }}>

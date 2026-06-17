@@ -28,7 +28,7 @@ const btn = (extra = {}) => ({
 });
 
 const inputStyle = {
-  width: "100%", padding: "9px 10px 9px 34px",
+  width: "100%", padding: "9px 12px",
   border: "1px solid #d1d5db", borderRadius: 7,
   fontSize: 12, outline: "none", fontFamily: "inherit",
   boxSizing: "border-box",
@@ -54,7 +54,8 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const { data } = await axios.post("/api/auth/login", {
+      const { data } = await axios.post(
+       "http://localhost:5000/api/auth/login", {
         email: email.trim(),
         password,
         role,
@@ -95,20 +96,17 @@ export default function LoginPage() {
 
   // ── Main layout ───────────────────────────────────────────────────────────
   return (
-    <div style={{ Width:"100%", margin: "0 auto", fontFamily: "'Segoe UI', system-ui, sans-serif",overflow: "hidden" }}>
+    <div style={{ width:"100%", margin: "0 auto", fontFamily: "'Segoe UI', system-ui, sans-serif",overflow: "hidden" }}>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1.05fr", minHeight: 520 }}>
 
         {/* ── LEFT PANEL ── */}
         <div style={{ background: NAVY, padding: "36px 26px", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", overflow: "hidden" }}>
-          {/* bg circles */}
-          {[{ s: 200, r: -40, t: -40 }, { s: 120, l: -30, b: -30 }].map((c, i) => (
-            <div key={i} style={{ position: "absolute", width: c.s, height: c.s, borderRadius: "50%", background: AMBER, opacity: 0.07, right: c.r, top: c.t, left: c.l, bottom: c.b, pointerEvents: "none" }} />
-          ))}
+   
 
           <div style={{ position: "relative", zIndex: 1 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: AMBER_DIM, color: AMBER, fontSize: 10, fontWeight: 600, padding: "4px 10px", borderRadius: 20, marginBottom: 18 }}>
-              🔐 Secure Login
+              Secure Login
             </div>
             <h2 style={{ fontSize: 22, fontWeight: 700, color: "#fff", lineHeight: 1.3, marginBottom: 10 }}>
               Welcome back to<br /><span style={{ color: AMBER }}>QuickServe</span>
@@ -130,18 +128,7 @@ export default function LoginPage() {
             ))}
           </div>
 
-          {/* Recent activity card */}
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>Recent activity</div>
-            <div style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: AMBER, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: NAVY, flexShrink: 0 }}>SJ</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>Order #1042 — Smash Burger</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>2 mins ago • Samiha placed an order</div>
-              </div>
-              <div style={{ background: AMBER_DIM, color: AMBER, fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 20, whiteSpace: "nowrap" }}>👨‍🍳 Cooking</div>
-            </div>
-          </div>
+
         </div>
 
         {/* ── RIGHT PANEL ── */}
@@ -171,11 +158,10 @@ export default function LoginPage() {
           <div style={{ marginBottom: 13 }}>
             <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: "var(--color-text-secondary, #6b7280)", marginBottom: 4, letterSpacing: "0.3px" }}>EMAIL ADDRESS</label>
             <div style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14 }}>✉️</span>
               <input
                 style={inputStyle}
                 type="email"
-                placeholder="you@example.com"
+                placeholder="you@gmail.com"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
@@ -187,7 +173,6 @@ export default function LoginPage() {
           <div style={{ marginBottom: 6 }}>
             <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: "var(--color-text-secondary, #6b7280)", marginBottom: 4, letterSpacing: "0.3px" }}>PASSWORD</label>
             <div style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14 }}>🔒</span>
               <input
                 style={{ ...inputStyle, paddingRight: 36 }}
                 type={showPass ? "text" : "password"}
@@ -196,9 +181,6 @@ export default function LoginPage() {
                 onChange={(e) => { setPassword(e.target.value); setError(""); }}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               />
-              <span onClick={() => setShowPass((p) => !p)} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", cursor: "pointer", fontSize: 14 }}>
-                {showPass ? "🙈" : "👁️"}
-              </span>
             </div>
           </div>
 
@@ -222,7 +204,7 @@ export default function LoginPage() {
             cursor: loading ? "not-allowed" : "pointer",
             marginBottom: 14,
           })}>
-            {loading ? "Signing in..." : "Sign in 🔐"}
+            {loading ? "Signing in..." : "Sign in "}
           </button>
 
           {/* Divider */}
