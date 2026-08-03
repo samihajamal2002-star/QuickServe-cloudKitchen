@@ -1,119 +1,378 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-// REGISTER
-const registerUser = async (req, res) => {
-  try {
-    const { name, email, phone, password, role } = req.body;
+// =========================
+// Register
+// =========================
+exports.register = async (req, res) => {
 
-    const existingUser = await User.findOne({ email });
+    try {
 
-    if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists"
-      });
+        const { name, email, phone, password } = req.body;
+
+        // Customer role fixed
+        const role = "customer";
+
+        // Check existing user
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Email already exists"
+
+            });
+
+        }
+
+        // Hash Password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create User
+        const user = await User.create({
+
+            name,
+
+            email,
+
+            phone,
+
+            password: hashedPassword,
+
+            role
+
+        });
+
+        // Generate Token
+        const token = jwt.sign(
+
+            {
+
+                id: user._id,
+
+                role: user.role
+
+            },
+
+            process.env.JWT_SECRET,
+
+            {
+
+                expiresIn: "7d"
+
+            }
+
+        );
+
+        res.status(201).json({
+
+            success: true,
+
+            message: "Registration Successful",
+
+            token,
+
+            user: {
+
+                id: user._id,
+
+                name: user.name,
+
+                email: user.email,
+
+                phone: user.phone,
+
+                role: user.role
+
+            }
+
+        });
+
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    catch (err) {
 
-    const newUser = new User({
-      name,
-      email,
-      phone,
-      password: hashedPassword,
-      role
-    });
+        res.status(500).json({
 
-    await newUser.save();
+            success: false,
 
-    const token = jwt.sign(
-      {
-        id: newUser._id,
-        role: newUser.role
-      },
-      process.env.JWT_SECRET || "secretkey123",
-      {
-        expiresIn: "1h"
-      }
-    );
+            message: err.message
 
-    res.status(201).json({
-      message: "Registration Successful",
-      token,
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        phone: newUser.phone,
-        role: newUser.role
-      }
-    });
+        });
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: error.message
-    });
-  }
+    }
+
 };
 
-// LOGIN
-const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// =========================
+// Login
+// =========================
+exports.login = async (req, res) => {
 
-    const user = await User.findOne({ email });
+    try {
 
-    if (!user) {
-      return res.status(400).json({
-        message: "Invalid Credentials"
-      });
+        const { email, password } = req.body;
+
+        // =====================
+        // Fixed Admin Login
+        // =====================
+
+        if (
+
+            email === "admin@quickserve.com" &&
+
+            password === "admin123"
+
+        ) {
+
+            const token = jwt.sign(
+
+                {
+
+                    id: "admin",
+
+                    role: "admin"
+
+                },
+
+                process.env.JWT_SECRET,
+
+                {
+
+                    expiresIn: "7d"
+
+                }
+
+            );
+
+            return res.json({
+
+                success: true,
+
+                token,
+
+                user: {
+
+                    id: "admin",
+
+                    name: "Administrator",
+
+                    email,
+
+                    role: "admin"
+
+                }
+
+            });
+
+        }
+
+        // =====================
+        // Fixed Chef Login
+        // =====================
+
+        if (
+
+            email === "chef@quickserve.com" &&
+
+            password === "chef123"
+
+        ) {
+
+            const token = jwt.sign(
+
+                {
+
+                    id: "chef",
+
+                    role: "chef"
+
+                },
+
+                process.env.JWT_SECRET,
+
+                {
+
+                    expiresIn: "7d"
+
+                }
+
+            );
+
+            return res.json({
+
+                success: true,
+
+                token,
+
+                user: {
+
+                    id: "chef",
+
+                    name: "Chef",
+
+                    email,
+
+                    role: "chef"
+
+                }
+
+            });
+
+        }
+
+        // =====================
+        // Fixed Rider Login
+        // =====================
+
+        if (
+
+            email === "rider@quickserve.com" &&
+
+            password === "rider123"
+
+        ) {
+
+            const token = jwt.sign(
+
+                {
+
+                    id: "rider",
+
+                    role: "rider"
+
+                },
+
+                process.env.JWT_SECRET,
+
+                {
+
+                    expiresIn: "7d"
+
+                }
+
+            );
+
+            return res.json({
+
+                success: true,
+
+                token,
+
+                user: {
+
+                    id: "rider",
+
+                    name: "Rider",
+
+                    email,
+
+                    role: "rider"
+
+                }
+
+            });
+
+        }
+
+        // =====================
+        // Customer Login
+        // =====================
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+
+            return res.status(401).json({
+
+                success: false,
+
+                message: "Invalid Email or Password"
+
+            });
+
+        }
+
+        const isMatch = await bcrypt.compare(
+
+            password,
+
+            user.password
+
+        );
+
+        if (!isMatch) {
+
+            return res.status(401).json({
+
+                success: false,
+
+                message: "Invalid Email or Password"
+
+            });
+
+        }
+
+        const token = jwt.sign(
+
+            {
+
+                id: user._id,
+
+                role: user.role
+
+            },
+
+            process.env.JWT_SECRET,
+
+            {
+
+                expiresIn: "7d"
+
+            }
+
+        );
+
+        res.json({
+
+            success: true,
+
+            message: "Login Successful",
+
+            token,
+
+            user: {
+
+                id: user._id,
+
+                name: user.name,
+
+                email: user.email,
+
+                phone: user.phone,
+
+                role: user.role
+
+            }
+
+        });
+
     }
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    catch (err) {
 
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Invalid Credentials"
-      });
+        res.status(500).json({
+
+            success: false,
+
+            message: err.message
+
+        });
+
     }
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        role: user.role
-      },
-      process.env.JWT_SECRET || "secretkey123",
-      {
-        expiresIn: "1h"
-      }
-    );
-
-    res.status(200).json({
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role
-      }
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: error.message
-    });
-  }
-};
-
-module.exports = {
-  registerUser,
-  loginUser
 };

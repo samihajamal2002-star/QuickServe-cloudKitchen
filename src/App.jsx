@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Homepage from './components/Homepage';
-import LoginPage from './components/LoginPage';
-import RegisterPage from './components/RegisterPage';
-import MenuPage from './components/MenuPage'; // MenuPage ইমপোর্ট করতে ভুলবেন না
+import Homepage from './pages/Homepage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import MenuPage from './pages/MenuPage'; // MenuPage ইমপোর্ট করতে ভুলবেন না
 import Layout from './components/Layout';
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -26,6 +27,8 @@ function App() {
     <Route index element={<Homepage />} /> 
     <Route path="login" element={<LoginPage />} />
     <Route path="register" element={<RegisterPage />} />
+    <Route path="admin/dashboard" element={<AdminDashboard />} />
+
     <Route path="menu" element={<MenuPage addToCart={addToCart} />} />
   </Route>
 </Routes>
