@@ -41,6 +41,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/menu", menuRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ================= Home Route =================
 app.get("/", (req, res) => {
