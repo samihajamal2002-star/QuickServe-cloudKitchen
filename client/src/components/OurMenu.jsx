@@ -7,7 +7,7 @@ const menuData = [
     id: 1,
     title: "Sirloin Steak",
     desc: "Premium sirloin steak served with a rich mushroom sauce and grilled vegetables.",
-    price: 89.0,
+    price: 1990,
     image:
       "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
   },
@@ -15,7 +15,7 @@ const menuData = [
     id: 2,
     title: "Spaghetti Italian",
     desc: "Authentic thin pasta tossed in rich tomato basil sauce and parmesan cheese.",
-    price: 45.0,
+    price: 450,
     image:
       "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=800&auto=format&fit=crop",
   },
@@ -23,7 +23,7 @@ const menuData = [
     id: 3,
     title: "Pasta Bolognese",
     desc: "Classic Italian pasta cooked with fresh olive oil, minced meat, and herbs.",
-    price: 65.0,
+    price: 650,
     // 👈 100% Working Pasta Image
     image:
       "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=800&auto=format&fit=crop",
@@ -32,7 +32,7 @@ const menuData = [
     id: 4,
     title: "Classic Cheese Burger",
     desc: "Juicy beef patty with melted cheddar, fresh lettuce, and signature sauce.",
-    price: 35.0,
+    price: 350,
     image:
       "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop",
   },
@@ -40,7 +40,7 @@ const menuData = [
     id: 5,
     title: "BBQ Chicken Pizza",
     desc: "Freshly baked pizza topped with smokey BBQ chicken, onions, and mozzarella.",
-    price: 99.0,
+    price: 990,
     image:
       "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800&auto=format&fit=crop",
   },
@@ -48,7 +48,7 @@ const menuData = [
     id: 6,
     title: "Crispy Chicken Wings",
     desc: "Deep-fried spicy wings served with ranch dip and fresh lime slices.",
-    price: 29.0,
+    price: 290,
     image:
       "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?q=80&w=800&auto=format&fit=crop",
   },

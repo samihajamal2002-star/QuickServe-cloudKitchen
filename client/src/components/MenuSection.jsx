@@ -21,40 +21,43 @@ export default function MenuSection() {
     }
   };
 
+  // 💡 ডাইনামিক ইমেজ ইউআরএল জেনারেটর
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "https://via.placeholder.com/300?text=No+Image";
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      return imagePath;
+    }
+    const cleanPath = imagePath.startsWith("/") ? imagePath : `/uploads/${imagePath}`;
+    return `http://localhost:5000${cleanPath}`;
+  };
+
   // 🛒 Add to Cart Function
   const addToCart = (food) => {
-    // 1. Get existing cart items from localStorage
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    // 2. Check if food is already in cart
     const existingIndex = existingCart.findIndex(
       (item) => item.id === food._id || item._id === food._id
     );
 
     if (existingIndex > -1) {
-      // If already exists, increase quantity
       existingCart[existingIndex].quantity += 1;
     } else {
-      // If new, push with initial quantity = 1
       existingCart.push({
         id: food._id,
         _id: food._id,
         title: food.name,
         name: food.name,
         price: food.price,
-        image: `http://localhost:5000${food.image}`,
+        image: getImageUrl(food.image),
         quantity: 1,
       });
     }
 
-    // 3. Save back to localStorage
     localStorage.setItem("cart", JSON.stringify(existingCart));
 
-    // Show temporary alert/feedback message
     setAddedMessage(`${food.name} added to cart!`);
     setTimeout(() => setAddedMessage(""), 2000);
 
-    // Trigger storage event so Navbar cart counter can update dynamically
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -99,29 +102,36 @@ export default function MenuSection() {
             foods.map((food) => (
               <div
                 key={food._id}
-                className="bg-white rounded-3xl shadow-lg overflow-hidden border border-orange-100 hover:shadow-2xl transition duration-300"
+                className="bg-white rounded-3xl shadow-lg overflow-hidden border border-orange-100 hover:shadow-2xl transition duration-300 flex flex-col justify-between"
               >
-                <img
-                  src={`http://localhost:5000${food.image}`}
-                  alt={food.name}
-                  className="w-full h-56 object-cover"
-                />
+                <div>
+                  <img
+                    src={getImageUrl(food.image)}
+                    alt={food.name}
+                    className="w-full h-56 object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://via.placeholder.com/300?text=Food+Image";
+                    }}
+                  />
 
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold text-amber-950">
-                    {food.name}
-                  </h2>
+                  <div className="p-6">
+                    <h2 className="text-2xl font-bold text-amber-950">
+                      {food.name}
+                    </h2>
 
-                  <p className="text-gray-500 mt-2 text-sm line-clamp-2">
-                    {food.description}
-                  </p>
+                    <p className="text-gray-500 mt-2 text-sm line-clamp-2">
+                      {food.description}
+                    </p>
+                  </div>
+                </div>
 
-                  <div className="flex justify-between items-center mt-6">
+                <div className="p-6 pt-0">
+                  <div className="flex justify-between items-center mt-4">
                     <span className="text-3xl font-black text-orange-500">
                       ৳ {food.price}
                     </span>
 
-                    {/* 👈 Added onClick Handler Here */}
                     <button
                       onClick={() => addToCart(food)}
                       style={{ backgroundColor: "#f97316", color: "#ffffff" }}
@@ -131,6 +141,7 @@ export default function MenuSection() {
                     </button>
                   </div>
                 </div>
+
               </div>
             ))
           )}

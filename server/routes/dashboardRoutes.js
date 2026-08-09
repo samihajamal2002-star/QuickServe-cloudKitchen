@@ -4,10 +4,9 @@ const router = express.Router();
 const auth = require("../middleware/authMiddleware");
 const admin = require("../middleware/adminMiddleware");
 
-const {
-  getDashboard,
-} = require("../controllers/dashboardController");
+const { getDashboardStats } = require("../controllers/dashboardController");
 
-router.get("/", auth, admin, getDashboard);
+// GET /api/dashboard
+router.get("/", auth, admin, getDashboardStats);
 
 module.exports = router;

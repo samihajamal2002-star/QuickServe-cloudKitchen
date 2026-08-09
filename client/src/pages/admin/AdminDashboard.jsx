@@ -3,12 +3,19 @@ import AdminSidebar from "../../components/AdminSidebar";
 
 export default function AdminDashboard() {
   return (
-    <div className="flex min-h-screen bg-[#FFF7ED]">
+    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#FFF7ED" }}>
       {/* Sidebar */}
       <AdminSidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 p-8">
+      {/* Main Content with Forced Inline Padding */}
+      <div 
+        style={{ 
+          flex: 1, 
+          minWidth: 0, 
+          padding: "40px", 
+          overflowX: "hidden" 
+        }}
+      >
         <Outlet />
       </div>
     </div>

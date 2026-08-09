@@ -31,7 +31,7 @@ export default function Contact() {
       {/* 🧭 Navbar Added */}
       <Navbar />
 
-      <section className="min-h-screen bg-[#FFF7ED] pt-28 pb-20">
+      <section className="min-h-screen bg-[#FFF7ED] pt-32 pb-12 px-6 ">
         <div className="max-w-7xl mx-auto px-6">
           
           {/* Header */}

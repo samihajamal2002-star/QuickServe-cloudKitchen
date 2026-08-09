@@ -1,345 +1,293 @@
-import React, { useState } from "react";
-import {
-  FaSearch,
-  FaEye,
-  FaCheck,
-  FaTimes,
-  FaTruck,
-} from "react-icons/fa";
-
-const initialOrders = [
-  {
-    id: "#1001",
-    customer: "Samiha Jamal",
-    phone: "+8801711111111",
-    food: "Classic Burger",
-    total: 130,
-    payment: "Cash",
-    status: "Pending",
-  },
-  {
-    id: "#1002",
-    customer: "Rahim Ahmed",
-    phone: "+8801811111111",
-    food: "Chicken Pizza",
-    total: 99,
-    payment: "Card",
-    status: "Delivered",
-  },
-  {
-    id: "#1003",
-    customer: "Karim Hasan",
-    phone: "+8801911111111",
-    food: "Italian Pasta",
-    total: 85,
-    payment: "Cash",
-    status: "Pending",
-  },
-];
+import React, { useState, useEffect } from "react";
+import axios from "../../api/axios";
+import { FaEye, FaTimes, FaCheck, FaSync } from "react-icons/fa";
 
 export default function ManageOrders() {
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const filteredOrders = orders.filter((order) =>
-    order.customer.toLowerCase().includes(search.toLowerCase())
-  );
+  // Auth Header Generation
+  const getAuthHeader = () => ({
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
 
-  const updateStatus = (id, status) => {
-    setOrders(
-      orders.map((order) =>
-        order.id === id
-          ? { ...order, status }
-          : order
-      )
-    );
+  // Fetch all orders from Admin API (with Array Safety Check)
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get("/orders", getAuthHeader());
+      
+      if (Array.isArray(res.data)) {
+        setOrders(res.data);
+      } else if (res.data && Array.isArray(res.data.orders)) {
+        setOrders(res.data.orders);
+      } else {
+        setOrders([]);
+      }
+    } catch (err) {
+      console.error("Error fetching orders:", err?.response?.data || err.message);
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  // Update order status (Confirm -> Preparing, Cancelled)
+  const updateStatus = async (id, status) => {
+    try {
+      await axios.put(
+        `/orders/${id}`,
+        { status },
+        getAuthHeader()
+      );
+      fetchOrders();
+      if (selectedOrder && selectedOrder._id === id) {
+        setSelectedOrder(null);
+      }
+    } catch (err) {
+      console.error("Error updating status:", err?.response?.data || err.message);
+      alert("Failed to update status!");
+    }
+  };
+
+  // Filter orders by customer name
+  const filteredOrders = orders.filter((order) => {
+    const customerName = order.user?.name || order.customer?.name || order.name || "Guest";
+    return customerName.toLowerCase().includes(search.toLowerCase());
+  });
+
   return (
-    <section className="min-h-screen bg-[#FFF7ED] py-20">
-
-      <div className="max-w-7xl mx-auto px-6">
-
-        <div className="flex justify-between items-center flex-wrap gap-5">
-
+    <section className="min-h-screen bg-[#FFF7ED] py-10 px-6">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
           <div>
-
-            <span className="bg-orange-100 text-orange-500 px-5 py-2 rounded-full font-semibold">
+            <span className="bg-orange-100 text-orange-500 px-4 py-1.5 rounded-full text-xs font-bold">
               Admin Panel
             </span>
-
-            <h1 className="text-5xl font-black mt-5">
+            <h1 className="text-3xl font-black text-slate-900 mt-3">
               Manage Orders
             </h1>
-
           </div>
 
+          <button
+            onClick={fetchOrders}
+            className="flex items-center gap-2 bg-white hover:bg-orange-50 text-slate-700 hover:text-orange-600 border border-orange-200 px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer active:scale-95"
+          >
+            <FaSync className={loading ? "animate-spin text-orange-500" : ""} />
+            Refresh
+          </button>
         </div>
 
-        {/* Search */}
-
-        <div className="relative mt-10">
-
-          <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-
+        {/* Search Input */}
+        <div className="mb-8">
           <input
             type="text"
-            placeholder="Search customer..."
+            placeholder="Search customer name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white border border-orange-200 rounded-2xl py-4 pl-14 pr-5 outline-none focus:border-orange-500"
+            className="w-full bg-white border border-orange-200 rounded-xl py-3 px-4 outline-none focus:border-orange-500 text-sm font-semibold text-slate-800 shadow-sm"
           />
-
         </div>
 
         {/* Orders Table */}
-
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden mt-10">
-
-          <table className="w-full">
-
-            <thead className="bg-orange-500 text-white">
-
-              <tr>
-
-                <th className="py-5">Order ID</th>
-                <th>Customer</th>
-                <th>Food</th>
-                <th>Total</th>
-                <th>Payment</th>
-                <th>Status</th>
-                <th>Action</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {filteredOrders.map((order) => (
-
-                <tr
-                  key={order.id}
-                  className="border-b hover:bg-orange-50"
-                >
-
-                  <td className="text-center py-5 font-semibold">
-                    {order.id}
-                  </td>
-
-                  <td className="text-center">
-                    {order.customer}
-                  </td>
-
-                  <td className="text-center">
-                    {order.food}
-                  </td>
-
-                  <td className="text-center">
-                    ${order.total}
-                  </td>
-
-                  <td className="text-center">
-                    {order.payment}
-                  </td>
-
-                  <td className="text-center">
-
-                    <span
-                      className={`px-4 py-2 rounded-full text-sm font-semibold
-                      ${
-                        order.status === "Pending"
-                          ? "bg-orange-100 text-orange-600"
-                          : order.status === "Delivered"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-
-                  </td>
-
-                  <td>
-
-                    <div className="flex justify-center gap-3">
-
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="bg-orange-500 text-white p-3 rounded-xl hover:bg-orange-600"
-                      >
-                        <FaEye />
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          updateStatus(order.id, "Delivered")
-                        }
-                        className="bg-green-500 text-white p-3 rounded-xl hover:bg-green-600"
-                      >
-                        <FaTruck />
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          updateStatus(order.id, "Cancelled")
-                        }
-                        className="bg-red-500 text-white p-3 rounded-xl hover:bg-red-600"
-                      >
-                        <FaTimes />
-                      </button>
-
-                    </div>
-
-                  </td>
-
+        <div className="bg-white rounded-2xl shadow-md border border-orange-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-orange-500 text-white text-xs uppercase font-bold">
+                <tr>
+                  <th className="py-4 px-4 text-center">Order ID</th>
+                  <th className="py-4 px-4">Customer</th>
+                  <th className="py-4 px-4">Items Summary</th>
+                  <th className="py-4 px-4">Total Amount</th>
+                  <th className="py-4 px-4">Payment</th>
+                  <th className="py-4 px-4 text-center">Status</th>
+                  <th className="py-4 px-4 text-center">Action</th>
                 </tr>
+              </thead>
 
-              ))}
+              <tbody className="divide-y divide-orange-50 text-xs md:text-sm">
+                {loading ? (
+                  <tr>
+                    <td colSpan="7" className="text-center py-8 text-gray-500 font-bold">
+                      Loading orders...
+                    </td>
+                  </tr>
+                ) : filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" className="text-center py-8 text-gray-500 font-semibold">
+                      No orders found.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <tr key={order._id} className="hover:bg-orange-50/50 transition-colors">
+                      {/* Order ID */}
+                      <td className="text-center py-4 px-4 font-bold text-orange-500">
+                        #{order._id ? order._id.slice(-6).toUpperCase() : "N/A"}
+                      </td>
 
-            </tbody>
+                      {/* Customer Name */}
+                      <td className="py-4 px-4 font-bold text-slate-800">
+                        {order.user?.name || order.customer?.name || order.name || "Guest User"}
+                      </td>
 
-          </table>
+                      {/* Food Items List */}
+                      <td className="py-4 px-4 text-slate-600">
+                        {order.items && order.items.length > 0 ? (
+                          order.items.map((item, idx) => (
+                            <div key={idx} className="font-semibold text-xs">
+                              • {item.food?.title || item.food?.name || item.name || "Food Item"}{" "}
+                              <span className="text-orange-500 font-bold">x {item.quantity || 1}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-slate-400 italic">No items</span>
+                        )}
+                      </td>
 
+                      {/* Total Price */}
+                      <td className="py-4 px-4 font-black text-slate-900">
+                        ৳ {order.totalAmount || order.totalPrice || 0}
+                      </td>
+
+                      {/* Payment Method */}
+                      <td className="py-4 px-4 font-semibold text-slate-600 capitalize">
+                        {order.paymentMethod || "Cash On Delivery"}
+                      </td>
+
+                      {/* Order Status Badge */}
+                      <td className="text-center py-4 px-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-[11px] font-bold ${
+                            order.status === "Delivered" || order.status === "Ready"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : order.status === "Cancelled"
+                              ? "bg-rose-100 text-rose-700"
+                              : order.status === "Preparing" || order.status === "Cooking"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-orange-100 text-orange-700"
+                          }`}
+                        >
+                          {order.status || "Pending"}
+                        </span>
+                      </td>
+
+                      {/* Action Buttons */}
+                      <td className="text-center py-4 px-4">
+                        <div className="flex justify-center items-center gap-2">
+                          {/* View Details Button */}
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="bg-orange-500 text-white p-2.5 rounded-xl hover:bg-orange-600 transition shadow-sm cursor-pointer"
+                            title="View Details"
+                          >
+                            <FaEye />
+                          </button>
+
+                          {/* Confirm Order -> Set status to Preparing for Chef */}
+                          {(order.status === "Pending" || !order.status) && (
+                            <button
+                              onClick={() => updateStatus(order._id, "Preparing")}
+                              className="bg-emerald-500 text-white p-2.5 rounded-xl hover:bg-emerald-600 transition shadow-sm cursor-pointer flex items-center gap-1 font-bold text-xs"
+                              title="Confirm Order (Send to Chef)"
+                            >
+                              <FaCheck /> Confirm
+                            </button>
+                          )}
+
+                          {/* Cancel Order */}
+                          {order.status !== "Cancelled" && order.status !== "Delivered" && (
+                            <button
+                              onClick={() => updateStatus(order._id, "Cancelled")}
+                              className="bg-rose-500 text-white p-2.5 rounded-xl hover:bg-rose-600 transition shadow-sm cursor-pointer"
+                              title="Cancel Order"
+                            >
+                              <FaTimes />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-                {/* Order Details Popup */}
 
+        {/* Details Modal */}
         {selectedOrder && (
-          <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-
-            <div className="bg-white w-[500px] rounded-3xl p-8 shadow-2xl">
-
-              <div className="flex justify-between items-center mb-8">
-
-                <h2 className="text-3xl font-bold text-slate-800">
-                  Order Details
+          <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl relative animate-fadeIn">
+              <div className="flex justify-between items-center mb-4 border-b pb-3">
+                <h2 className="text-xl font-bold text-slate-800">
+                  Order Details (#{selectedOrder._id ? selectedOrder._id.slice(-6).toUpperCase() : "N/A"})
                 </h2>
-
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="w-10 h-10 rounded-full bg-orange-100 hover:bg-orange-500 hover:text-white transition"
+                  className="text-gray-400 hover:text-slate-800 cursor-pointer"
                 >
-                  <FaTimes className="mx-auto" />
+                  <FaTimes size={18} />
                 </button>
-
               </div>
 
-              <div className="space-y-5">
-
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-500">
-                    Order ID
-                  </span>
-
-                  <span className="font-bold">
-                    {selectedOrder.id}
-                  </span>
+              <div className="space-y-3 text-sm text-slate-700">
+                <p>
+                  <strong>Customer:</strong>{" "}
+                  {selectedOrder.user?.name || selectedOrder.customer?.name || selectedOrder.name || "Guest"}
+                </p>
+                <p>
+                  <strong>Phone:</strong>{" "}
+                  {selectedOrder.user?.phone || selectedOrder.customer?.phone || selectedOrder.phone || "N/A"}
+                </p>
+                <p>
+                  <strong>Address:</strong> {selectedOrder.address || "N/A"}
+                </p>
+                <p>
+                  <strong>Payment:</strong> {selectedOrder.paymentMethod || "Cash On Delivery"}
+                </p>
+                <p>
+                  <strong>Total:</strong> ৳ {selectedOrder.totalAmount || selectedOrder.totalPrice || 0}
+                </p>
+                
+                <div className="pt-2 border-t">
+                  <strong>Ordered Items:</strong>
+                  <ul className="list-disc ml-5 mt-2 space-y-1 text-xs text-gray-600">
+                    {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                      selectedOrder.items.map((item, idx) => {
+                        const price = item.price || item.food?.price || 0;
+                        const qty = item.quantity || 1;
+                        return (
+                          <li key={idx}>
+                            <span className="font-bold text-slate-800">
+                              {item.food?.title || item.food?.name || item.name || "Item"}
+                            </span>{" "}
+                            x {qty}{" "}
+                            <span className="text-orange-500 ml-1 font-semibold">
+                              (৳ {price * qty})
+                            </span>
+                          </li>
+                        );
+                      })
+                    ) : (
+                      <li className="text-slate-400 italic">No item details available</li>
+                    )}
+                  </ul>
                 </div>
-
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-500">
-                    Customer
-                  </span>
-
-                  <span className="font-bold">
-                    {selectedOrder.customer}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-500">
-                    Phone
-                  </span>
-
-                  <span className="font-bold">
-                    {selectedOrder.phone}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-500">
-                    Food
-                  </span>
-
-                  <span className="font-bold">
-                    {selectedOrder.food}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-500">
-                    Payment
-                  </span>
-
-                  <span className="font-bold">
-                    {selectedOrder.payment}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-500">
-                    Total
-                  </span>
-
-                  <span className="text-orange-500 font-black text-xl">
-                    ${selectedOrder.total}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-500">
-                    Status
-                  </span>
-
-                  <span
-                    className={`px-4 py-2 rounded-full text-sm font-semibold
-                    ${
-                      selectedOrder.status === "Pending"
-                        ? "bg-orange-100 text-orange-600"
-                        : selectedOrder.status === "Delivered"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    {selectedOrder.status}
-                  </span>
-                </div>
-
               </div>
-
-              <div className="grid grid-cols-2 gap-4 mt-10">
-
-                <button
-                  onClick={() => {
-                    updateStatus(selectedOrder.id, "Delivered");
-                    setSelectedOrder(null);
-                  }}
-                  className="bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-3 transition"
-                >
-                  <FaCheck />
-                  Delivered
-                </button>
-
-                <button
-                  onClick={() => {
-                    updateStatus(selectedOrder.id, "Cancelled");
-                    setSelectedOrder(null);
-                  }}
-                  className="bg-red-500 hover:bg-red-600 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-3 transition"
-                >
-                  <FaTimes />
-                  Cancel
-                </button>
-
-              </div>
-
             </div>
-
           </div>
         )}
-              </div>
 
+      </div>
     </section>
   );
 }

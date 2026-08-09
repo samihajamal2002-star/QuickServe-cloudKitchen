@@ -1,218 +1,104 @@
 const Menu = require("../models/Menu");
 
-// ===============================
-// Get All Foods
-// ===============================
-
+// =======================
+// 1. Get All Menu Items
+// =======================
 exports.getMenus = async (req, res) => {
-
-    try {
-
-        const menus = await Menu.find().sort({ createdAt: -1 });
-
-        res.json(menus);
-
-    }
-
-    catch (err) {
-
-        res.status(500).json({
-
-            message: err.message
-
-        });
-
-    }
-
+  try {
+    const items = await Menu.find().sort({ createdAt: -1 });
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// ===============================
-// Add Food
-// ===============================
+// =======================
+// 2. Get Single Menu Item
+// =======================
+exports.getMenuItem = async (req, res) => {
+  try {
+    const item = await Menu.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: "Food item not found" });
+    }
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
+// =======================
+// 3. Create New Food Item
+// =======================
 exports.createMenu = async (req, res) => {
+  try {
+    const { name, category, description, price, stock, preparationTime } = req.body;
 
-    try {
+    // ফাইলের নাম বা আপলোড পাথ নেওয়া
+    const imagePath = req.file ? req.file.filename : "";
 
-        const menu = new Menu({
+    const newItem = new Menu({
+      name,
+      category,
+      description,
+      price: Number(price),
+      stock: Number(stock) || 0,
+      preparationTime: Number(preparationTime) || 0,
+      image: imagePath,
+    });
 
-            name: req.body.name,
-
-            category: req.body.category,
-
-            description: req.body.description,
-
-            price: req.body.price,
-
-            stock: req.body.stock,
-
-            preparationTime: req.body.preparationTime,
-
-            image: req.file
-                ? `/uploads/${req.file.filename}`
-                : ""
-
-        });
-
-        await menu.save();
-
-        res.status(201).json({
-
-            success: true,
-
-            message: "Food Added Successfully",
-
-            menu
-
-        });
-
-    }
-
-    catch (err) {
-
-        res.status(500).json({
-
-            success: false,
-
-            message: err.message
-
-        });
-
-    }
-
+    const savedItem = await newItem.save();
+    res.status(201).json(savedItem);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// ===============================
-// Update Food
-// ===============================
-
+// =======================
+// 4. Update Menu Item Details
+// =======================
 exports.updateMenu = async (req, res) => {
+  try {
+    const updateData = { ...req.body };
 
-    try {
-
-        const updateData = {
-
-            name: req.body.name,
-
-            category: req.body.category,
-
-            description: req.body.description,
-
-            price: req.body.price,
-
-            stock: req.body.stock,
-
-            preparationTime: req.body.preparationTime
-
-        };
-
-        if (req.file) {
-
-            updateData.image = `/uploads/${req.file.filename}`;
-
-        }
-
-        const menu = await Menu.findByIdAndUpdate(
-
-            req.params.id,
-
-            updateData,
-
-            { new: true }
-
-        );
-
-        res.json({
-
-            success: true,
-
-            message: "Food Updated Successfully",
-
-            menu
-
-        });
-
+    if (req.file) {
+      updateData.image = req.file.path || req.file.filename;
     }
 
-    catch (err) {
-
-        res.status(500).json({
-
-            success: false,
-
-            message: err.message
-
-        });
-
-    }
-
+    const updatedItem = await Menu.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// ===============================
-// Delete Food
-// ===============================
+// =======================
+// 5. Update Inventory Stock (For Inventory.jsx)
+// =======================
+exports.updateStock = async (req, res) => {
+  try {
+    const { stock } = req.body;
+    const item = await Menu.findByIdAndUpdate(
+      req.params.id,
+      { stock: Number(stock) },
+      { new: true }
+    );
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
+// =======================
+// 6. Delete Food Item
+// =======================
 exports.deleteMenu = async (req, res) => {
-
-    try {
-
-        await Menu.findByIdAndDelete(req.params.id);
-
-        res.json({
-
-            success: true,
-
-            message: "Food Deleted Successfully"
-
-        });
-
-    }
-
-    catch (err) {
-
-        res.status(500).json({
-
-            success: false,
-
-            message: err.message
-
-        });
-
-    }
-
-};
-// ===============================
-// Get Single Food
-// ===============================
-
-exports.getMenu = async (req, res) => {
-
-    try {
-
-        const menu = await Menu.findById(req.params.id);
-
-        if (!menu) {
-
-            return res.status(404).json({
-
-                message: "Food Not Found"
-
-            });
-
-        }
-
-        res.json(menu);
-
-    }
-
-    catch (err) {
-
-        res.status(500).json({
-
-            message: err.message
-
-        });
-
-    }
-
+  try {
+    await Menu.findByIdAndDelete(req.params.id);
+    res.json({ message: "Food item deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

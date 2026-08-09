@@ -90,10 +90,7 @@ export default function Hero() {
             className="relative z-20 w-[520px] lg:w-[540px] hover:scale-105 transition-transform duration-500 drop-shadow-2xl object-contain"
           />
 
-          {/* Floating Pizza Card */}
-          <div className="absolute -top-2 right-4 z-30 bg-white p-3.5 rounded-2xl shadow-xl hover:scale-110 transition-transform">
-            <img src={pizza} alt="Pizza" className="w-16 animate-bounce" />
-          </div>
+         
 
 
           {/* Rating Badge Card */}
